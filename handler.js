@@ -3,6 +3,7 @@
 const config = require('./lib/config.js');
 const Alexa = require('alexa-sdk');
 const https = require('./lib/https.js');
+const utils = require('./lib/utils.js');
 
 var welcomeMessage = " Nashville Neighbors. You can ask me for public community resource information, or say help. What will it be?";
 
@@ -100,8 +101,7 @@ var startSearchHandlers = Alexa.CreateStateHandler(states.SEARCHMODE, {
                 categories = contact.contact_type + ", " + categories;
             });
 
-            categories = categories.replace(/\//g, ",");
-            categories = categories.replace(/&/g, "and");
+            categories = utils.contentCleanUp(categories);
 
             output = "Here is a list of community resources available in Nashville, " + categories;
             context.emit(':tell', output, getMoreInfoRepromptMessage);
