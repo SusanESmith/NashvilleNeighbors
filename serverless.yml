@@ -1,0 +1,21 @@
+service: nashville-neighbors
+
+provider:
+  name: aws
+  runtime: nodejs4.3
+  stage: dev
+  region: eu-west-1
+
+package:
+  include:
+    - handler.js
+    - serverless.yml
+  exclude:
+    - .npmignore
+    - .git
+
+functions:
+  index:
+    handler: handler.index
+    events:
+      - alexaSkill
