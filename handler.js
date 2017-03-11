@@ -79,31 +79,28 @@ var newSessionHandlers = {
       https.get(config.communityDataHost, config.communityDataPath, function(err, data) {
           if (err) {
               console.error(err);
-              context.emit(':tell', noNeighborErrorMessage, welcomeReprompt);
+              context.emit(':tell', noCategoryErrorMessage, welcomeReprompt);
               return;
           }
 
-          var excludeArr = [];
-
           data = JSON.parse(data);
 
-          var finalArr = data.filter(function(element) {
-              if (excludeArr.indexOf(element.contact_type) !== -1 || config.excludedCategories.indexOf(element.contact_type.toLowerCase()) !== -1) {
-                  return false;
-              } else {
-                  excludeArr.push(element.contact_type);
-                  return true;
-              }
+          data = data.filter(function(contact) {
+            if (contact.contact_type.toLowerCase().includes(slotValue.toLowerCase())) {
+              return true;
+            } else {
+              return false;
+            }
           });
 
-          var categories = "";
-          finalArr.forEach(function(contact) {
-              categories = contact.contact_type + ", " + categories;
+          var contacts = "";
+          data.forEach(function(contact) {
+              contacts = contact.contact + ", " + contacts;
           });
 
-          categories = utils.contentCleanUp(categories);
+          contacts = utils.contentCleanUp(contacts);
 
-          output = "Here is a list of community resources available in Nashville, " + categories;
+          output = "Here is a list of " + slotValue + " neighbors available in Nashville, " + contacts;
           context.emit(':tell', output, getMoreInfoRepromptMessage);
         });
     },
