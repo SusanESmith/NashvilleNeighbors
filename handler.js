@@ -84,6 +84,8 @@ var startSearchHandlers = Alexa.CreateStateHandler(states.SEARCHMODE, {
 
             var excludeArr = [];
 
+            data = JSON.parse(data);
+
             var finalArr = data.filter(function(element) {
                 if (excludeArr.indexOf(element.contact_type) !== -1 || config.excludedCategories.indexOf(element.contact_type.toLowerCase()) !== -1) {
                     return false;
@@ -93,12 +95,15 @@ var startSearchHandlers = Alexa.CreateStateHandler(states.SEARCHMODE, {
                 }
             });
 
-            var categories "";
+            var categories = "";
             finalArr.forEach(function(contact) {
-                categories = categories + contact.contact_type;
+                categories = contact.contact_type + ", " + categories;
             });
 
-            output = "Here is a list of community resources available in Nashville: " + categories;
+            categories = categories.replace(/\//g, ",");
+            categories = categories.replace(/&/g, "and");
+
+            output = "Here is a list of community resources available in Nashville, " + categories;
             context.emit(':tell', output, getMoreInfoRepromptMessage);
         });
     },
