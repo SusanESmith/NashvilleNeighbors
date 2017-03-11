@@ -14,8 +14,11 @@ package:
     - .env
     - node_modules
   exclude:
+    - README.md
     - .npmignore
+    - .gitignore
     - .git
+    - .log
 
 functions:
   index:
