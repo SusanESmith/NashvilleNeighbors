@@ -4,6 +4,7 @@
   "description": "Alexa skill to pull local Nashille area resource information",
   "main": "handler.js",
   "dependencies": {
+    "alexa-sdk": "^1.0.7",
     "dotenv": "^4.0.0"
   },
   "devDependencies": {},
