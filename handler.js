@@ -2,7 +2,7 @@
 
 const config = require('./lib/config.js');
 const Alexa = require('alexa-sdk');
-const https = require('https');
+const https = require('./lib/https.js');
 var welcomeMessage = " Nashville Neighbors. You can ask me for public community resource information,  or  say help. What will it be?";
 
 var welcomeReprompt = "You can ask me for a community resource category, or  say help. What will it be?";
@@ -12,6 +12,7 @@ var HelpMessage = "Here are some things you  can say: Give me community resource
 var goodbyeMessage = "OK, thanks for being a Nashville Neighbor.";
 
 var output = "";
+
 
 var newSessionHandlers = {
     'LaunchRequest': function() {
@@ -34,7 +35,15 @@ var newSessionHandlers = {
 };
 
 module.exports.index = (event, context, callback) => {
-    var alexa = Alexa.handler(event, context);
-    alexa.registerHandlers(newSessionHandlers);
-    alexa.execute();
+
+    https.get(config.communityDataHost, config.communityDataPath, function(err, data){
+      if (err) {
+        console.error(err);
+        return;
+      }
+      console.log(data);
+      var alexa = Alexa.handler(event, context);
+      alexa.registerHandlers(newSessionHandlers);
+      alexa.execute();
+    });
 };
