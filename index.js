@@ -1,5 +1,5 @@
 var Alexa = require('alexa-sdk');
-var http = require('http');
+var https = require('https');
 
 var states = {
   SEARCHMODE: '_SEARCHMODE',
@@ -8,6 +8,8 @@ var states = {
 };
 
 var welcomeMessage = " Nashville Neighbors. You can ask me for public community resource information,  or  say help. What will it be?";
+
+var welcomeReprompt = "You can ask me for a community resource category, or  say help. What will it be?";
 
 var HelpMessage = "Here are some things you  can say: Give me community resource information. Tell me about Nashville Neighbors.  What would you like to do?";
 
@@ -112,18 +114,17 @@ exports.handler = function(event, context, callback) {
 };
 
 // Create a web request and handle the response.
-function httpGet(query, callback) {
-    console.log("/n QUERY: " + query);
+function httpsGet(query, callback) {
 
 /*figure out how to access nashville.gov api */
-    // var options = {
-    //     //http://api.nytimes.com/svc/search/v2/articlesearch.json?q=Fayetteville&sort=newest&api-key=
-    //     host: 'api.nytimes.com',
-    //     path: '/svc/search/v2/articlesearch.json?q=' + query + '&sort=newest&api-key=' + APIKey,
-    //     method: 'GET'
-    // };
+    var options = {
+        //http://api.nytimes.com/svc/search/v2/articlesearch.json?q=Fayetteville&sort=newest&api-key=
+        host: 'data.nashville.gov',
+        path: '/resource/8zc7-2afq.json',
+        method: 'GET'
+    };
 
-    var req = http.request(options, (res) => {
+    var req = https.request(options, (res) => {
 
         var body = '';
 
