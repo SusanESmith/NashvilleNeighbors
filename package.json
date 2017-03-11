@@ -1,0 +1,26 @@
+{
+  "name": "nashville-neighbors",
+  "version": "1.0.0",
+  "description": "Alexa skill to pull local Nashille area resource information",
+  "main": "handler.js",
+  "dependencies": {
+    "dotenv": "^4.0.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SusanElizabeth/NashvilleNeighbors.git"
+  },
+  "keywords": [
+    "nashville"
+  ],
+  "author": "SusanElizabeth and asmith60",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SusanElizabeth/NashvilleNeighbors/issues"
+  },
+  "homepage": "https://github.com/SusanElizabeth/NashvilleNeighbors#readme"
+}

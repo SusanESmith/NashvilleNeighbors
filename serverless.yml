@@ -10,6 +10,9 @@ package:
   include:
     - handler.js
     - serverless.yml
+    - lib
+    - .env
+    - node_modules
   exclude:
     - .npmignore
     - .git
