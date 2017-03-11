@@ -35,73 +35,73 @@ var newSessionHandlers = {
         this.emit(':ask', output, welcomeReprompt);
     },
     'getOverview': function() {
-      output = welcomeMessage;
-      this.emit(':ask', output, welcomeReprompt);
+        output = welcomeMessage;
+        this.emit(':ask', output, welcomeReprompt);
     },
 
     'getCompleteCategoryListIntent': function() {
-      var context = this;
-      https.get(config.communityDataHost, config.communityDataPath, function(err, data) {
-          if (err) {
-              console.error(err);
-              context.emit(':tell', noCategoryErrorMessage, welcomeReprompt);
-              return;
-          }
+        var context = this;
+        https.get(config.communityDataHost, config.communityDataPath, function(err, data) {
+            if (err) {
+                console.error(err);
+                context.emit(':tell', noCategoryErrorMessage, welcomeReprompt);
+                return;
+            }
 
-          var excludeArr = [];
+            var excludeArr = [];
 
-          data = JSON.parse(data);
+            data = JSON.parse(data);
 
-          var finalArr = data.filter(function(element) {
-              if (excludeArr.indexOf(element.contact_type) !== -1 || config.excludedCategories.indexOf(element.contact_type.toLowerCase()) !== -1) {
-                  return false;
-              } else {
-                  excludeArr.push(element.contact_type);
-                  return true;
-              }
-          });
+            var finalArr = data.filter(function(element) {
+                if (excludeArr.indexOf(element.contact_type) !== -1 || config.excludedCategories.indexOf(element.contact_type.toLowerCase()) !== -1) {
+                    return false;
+                } else {
+                    excludeArr.push(element.contact_type);
+                    return true;
+                }
+            });
 
-          var categories = "";
-          finalArr.forEach(function(contact) {
-              categories = contact.contact_type + ", " + categories;
-          });
+            var categories = "";
+            finalArr.forEach(function(contact) {
+                categories = contact.contact_type + ", " + categories;
+            });
 
-          categories = utils.contentCleanUp(categories);
+            categories = utils.contentCleanUp(categories);
 
-          output = "Here is a list of community resources available in Nashville, " + categories;
-          context.emit(':tell', output, getMoreInfoRepromptMessage);
-      });
+            output = "Here is a list of community resources available in Nashville, " + categories;
+            context.emit(':tell', output, getMoreInfoRepromptMessage);
+        });
     },
 
     'getMoreInfoByCategoryIntent': function() {
-      var context = this,
-          slotValue = context.event.request.intent.slots.category.value;
-      https.get(config.communityDataHost, config.communityDataPath, function(err, data) {
-          if (err) {
-              console.error(err);
-              context.emit(':tell', noCategoryErrorMessage, welcomeReprompt);
-              return;
-          }
-
-          data = JSON.parse(data);
-
-          data = data.filter(function(contact) {
-            if (contact.contact_type.toLowerCase().includes(slotValue.toLowerCase())) {
-              return true;
-            } else {
-              return false;
+        var context = this,
+            slotValue = context.event.request.intent.slots.category.value;
+        https.get(config.communityDataHost, config.communityDataPath, function(err, data) {
+            if (err) {
+                console.error(err);
+                context.emit(':tell', noCategoryErrorMessage, welcomeReprompt);
+                return;
             }
-          });
 
-          var contacts = "";
-          data.forEach(function(contact) {
-              contacts = contact.contact + ", " + contacts;
-          });
+            data = JSON.parse(data);
 
-          contacts = utils.contentCleanUp(contacts);
+            data = data.filter(function(contact) {
+                if (contact.contact_type.toLowerCase().includes(slotValue.toLowerCase())) {
+                    return true;
+                } else {
+                    return false;
+                }
+            });
 
-          output = "Here is a list of " + slotValue + " neighbors available in Nashville, " + contacts;
-          context.emit(':tell', output, getMoreInfoRepromptMessage);
+            var contacts = "";
+            data.forEach(function(contact) {
+                contacts = contact.contact + ", " + contacts;
+            });
+
+            contacts = utils.contentCleanUp(contacts);
+
+            output = "Here is a list of " + slotValue + " neighbors available in Nashville, " + contacts;
+            context.emit(':tell', output, getMoreInfoRepromptMessage);
         });
     },
 
