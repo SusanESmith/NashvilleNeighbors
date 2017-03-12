@@ -14,6 +14,8 @@ var HelpMessage = "Here are some things you can say: Give me community resource 
 
 var goodbyeMessage = "OK, thanks for being a Nashville Neighbor.";
 
+var tryAgainMessage = "please try again."
+
 var noCategoryErrorMessage = "There was an error finding this category, " + tryAgainMessage;
 
 var moreCategoryInfo = "You can tell me a category for more information. For example tell me more about Food Assistance.";
@@ -25,8 +27,6 @@ var noNeighborErrorMessage = "There was an error finding this neighbor, " + tryA
 var moreInformation = "See your Alexa app for more information."
 
 var getMoreInfoMessage = "OK, " + getMoreInfoRepromptMessage;
-
-var tryAgainMessage = "please try again."
 
 var output = "";
 
