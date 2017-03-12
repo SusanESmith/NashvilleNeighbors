@@ -8,7 +8,7 @@ const utils = require('./lib/utils.js');
 
 var welcomeMessage = "We are your Nashville Neighbors. You can ask us for public community resource information, or say help. What will it be?";
 
-var welcomeReprompt = "You can ask me for a community resource category, or say help. What will it be?";
+var welcomeReprompt = "You can ask me for a community resource category, for information on a specific neighbor, or say help. What will it be?";
 
 var HelpMessage = "Here are some things you can say: Give me community resource information. Tell me about Nashville Neighbors.  What would you like to do?";
 
@@ -73,7 +73,7 @@ var newSessionHandlers = {
 
             categories = utils.contentCleanUp(categories);
 
-            output = "Here is a list of community resources available in Nashville, " + categories;
+            output = "Here is a list of community resource categories available in Nashville, " + categories;
             context.emit(':tell', output, getMoreInfoRepromptMessage);
         });
     },
@@ -92,6 +92,12 @@ var newSessionHandlers = {
 
             data = JSON.parse(data);
 
+            if (!data || data.length === 0 || !data[0].hasOwnProperty('contact') || !data[0].hasOwnProperty('contact_type')) {
+                console.error("Error retrieving data");
+                context.emit(':tell', noCategoryErrorMessage, welcomeReprompt);
+                return;
+            }
+
             // var dataSet = fuzzySet();
             //
             // data.forEach(function(contact) {
@@ -105,6 +111,12 @@ var newSessionHandlers = {
                     return false;
                 }
             });
+
+            if (!data || data.length === 0 || !data[0].hasOwnProperty('contact') || !data[0].hasOwnProperty('contact_type')) {
+                console.error("Error retrieving data");
+                context.emit(':tell', noCategoryErrorMessage, welcomeReprompt);
+                return;
+            }
 
             var contacts = "";
             data.forEach(function(contact) {
@@ -132,6 +144,12 @@ var newSessionHandlers = {
 
             data = JSON.parse(data);
 
+            if (!data || data.length === 0 || !data[0].hasOwnProperty('contact') || !data[0].hasOwnProperty('contact_type')) {
+                console.error("Error retrieving data");
+                context.emit(':tell', noNeighborErrorMessage, welcomeReprompt);
+                return;
+            }
+
             data = data.find(function(contact) {
                 if (contact.contact.toLowerCase().includes(slotValue.toLowerCase())) {
                     return true;
@@ -140,14 +158,20 @@ var newSessionHandlers = {
                 }
             });
 
-            var neighborInfo = data.contact + " is a " + data.contact_type + " service";
+            if (!data || data.length === 0 || !data[0].hasOwnProperty('contact') || !data[0].hasOwnProperty('contact_type')) {
+                console.error("Error retrieving data");
+                context.emit(':tell', noNeighborErrorMessage, welcomeReprompt);
+                return;
+            }
+
+            var neighborInfo = data.contact + " is a " + data.contact_type + " service,";
 
             if (data.location_1_address) {
-                neighborInfo = neighborInfo + " located at " + data.location_1_address + " in Nashville, TN";
+                neighborInfo = neighborInfo + " they are located at " + data.location_1_address + " in Nashville, TN, ";
             }
 
             if (data.phone_number) {
-                neighborInfo = neighborInfo + ". Their phone number is " + data.phone_number;
+                neighborInfo = neighborInfo + ", their phone number is " + data.phone_number + ".";
             }
 
             neighborInfo = utils.contentCleanUp(neighborInfo);
@@ -171,10 +195,10 @@ var newSessionHandlers = {
 };
 
 module.exports.index = (event, context, callback) => {
-    if (event.request.intent.name) {
+    if (event.request.hasOwnProperty('intent') && event.request.intent.hasOwnProperty('name')) {
         console.log("INTENT: " + event.request.intent.name);
     }
-    if (event.request.intent.slots) {
+    if (event.request.hasOwnProperty('intent') && event.request.intent.hasOwnProperty('slots')) {
         console.log("SLOTS:");
         console.log(event.request.intent.slots);
     }
