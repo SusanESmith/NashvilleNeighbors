@@ -6,7 +6,7 @@ const https = require('./lib/https.js');
 const utils = require('./lib/utils.js');
 //const fuzzySet = require('fuzzyset.js');
 
-var welcomeMessage = " Nashville Neighbors. You can ask me for public community resource information, or say help. What will it be?";
+var welcomeMessage = "We are your Nashville Neighbors. You can ask us for public community resource information, or say help. What will it be?";
 
 var welcomeReprompt = "You can ask me for a community resource category, or say help. What will it be?";
 
@@ -16,7 +16,7 @@ var goodbyeMessage = "OK, thanks for being a Nashville Neighbor.";
 
 var noCategoryErrorMessage = "There was an error finding this category, " + tryAgainMessage;
 
-var moreCategoryInfo = " You can tell me a category for more information. For example tell me more about Food Assistance.";
+var moreCategoryInfo = "You can tell me a category for more information. For example tell me more about Food Assistance.";
 
 var getMoreInfoRepromptMessage = "What category would you like to hear about?";
 
@@ -55,8 +55,10 @@ var newSessionHandlers = {
 
             var excludeArr = [];
 
+            var excludedCategories = JSON.parse(utils.contentCleanUp(JSON.stringify(config.excludedCategories)));
+
             var finalArr = data.filter(function(element) {
-                if (excludeArr.indexOf(element.contact_type) !== -1 || config.excludedCategories.indexOf(element.contact_type.toLowerCase()) !== -1) {
+                if (excludeArr.indexOf(element.contact_type) !== -1 || excludedCategories.indexOf(element.contact_type.toLowerCase()) !== -1) {
                     return false;
                 } else {
                     excludeArr.push(element.contact_type);
@@ -93,7 +95,7 @@ var newSessionHandlers = {
             // var dataSet = fuzzySet();
             //
             // data.forEach(function(contact) {
-            //   dataSet.add(contact.contact_type);
+            //   dataSet.add(contact.contact_type.toLowerCase());
             // });
 
             data = data.filter(function(contact) {
@@ -141,11 +143,11 @@ var newSessionHandlers = {
             var neighborInfo = data.contact + " is a " + data.contact_type + " service";
 
             if (data.location_1_address) {
-              neighborInfo = neighborInfo + " located at " + data.location_1_address  + " in Nashville, TN";
+                neighborInfo = neighborInfo + " located at " + data.location_1_address + " in Nashville, TN";
             }
 
             if (data.phone_number) {
-              neighborInfo = neighborInfo + ". Their phone number is " + data.phone_number;
+                neighborInfo = neighborInfo + ". Their phone number is " + data.phone_number;
             }
 
             neighborInfo = utils.contentCleanUp(neighborInfo);
@@ -169,9 +171,13 @@ var newSessionHandlers = {
 };
 
 module.exports.index = (event, context, callback) => {
-    console.log("INTENT: " + event.request.intent.name);
-    console.log("SLOTS:");
-    console.log(event.request.intent.slots);
+    if (event.request.intent.name) {
+        console.log("INTENT: " + event.request.intent.name);
+    }
+    if (event.request.intent.slots) {
+        console.log("SLOTS:");
+        console.log(event.request.intent.slots);
+    }
     var alexa = Alexa.handler(event, context);
     alexa.registerHandlers(newSessionHandlers);
     alexa.execute();
