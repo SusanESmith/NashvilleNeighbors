@@ -4,6 +4,7 @@ const config = require('./lib/config.js');
 const Alexa = require('alexa-sdk');
 const https = require('./lib/https.js');
 const utils = require('./lib/utils.js');
+//const fuzzySet = require('fuzzyset.js');
 
 var welcomeMessage = " Nashville Neighbors. You can ask me for public community resource information, or say help. What will it be?";
 
@@ -48,9 +49,11 @@ var newSessionHandlers = {
                 return;
             }
 
-            var excludeArr = [];
+            data = utils.contentCleanUp(data);
 
             data = JSON.parse(data);
+
+            var excludeArr = [];
 
             var finalArr = data.filter(function(element) {
                 if (excludeArr.indexOf(element.contact_type) !== -1 || config.excludedCategories.indexOf(element.contact_type.toLowerCase()) !== -1) {
@@ -83,7 +86,15 @@ var newSessionHandlers = {
                 return;
             }
 
+            data = utils.contentCleanUp(data);
+
             data = JSON.parse(data);
+
+            // var dataSet = fuzzySet();
+            //
+            // data.forEach(function(contact) {
+            //   dataSet.add(contact.contact_type);
+            // });
 
             data = data.filter(function(contact) {
                 if (contact.contact_type.toLowerCase().includes(slotValue.toLowerCase())) {
@@ -115,9 +126,11 @@ var newSessionHandlers = {
                 return;
             }
 
+            data = utils.contentCleanUp(data);
+
             data = JSON.parse(data);
 
-            data = data.filter(function(contact) {
+            data = data.find(function(contact) {
                 if (contact.contact.toLowerCase().includes(slotValue.toLowerCase())) {
                     return true;
                 } else {
@@ -125,14 +138,19 @@ var newSessionHandlers = {
                 }
             });
 
-            var neighborInfo = "";
-            data.forEach(function(contact) {
-                neighborInfo = contact.contact + ", " + neighborInfo;
-            });
+            var neighborInfo = data.contact + " is a " + data.contact_type + " service";
+
+            if (data.location_1_address) {
+              neighborInfo = neighborInfo + " located at " + data.location_1_address  + " in Nashville, TN";
+            }
+
+            if (data.phone_number) {
+              neighborInfo = neighborInfo + ". Their phone number is " + data.phone_number;
+            }
 
             neighborInfo = utils.contentCleanUp(neighborInfo);
 
-            output = "Here is some information about " + slotValue + " in Nashville, " + neighborInfo;
+            output = neighborInfo;
             context.emit(':tell', output, getMoreInfoRepromptMessage);
         });
     },
