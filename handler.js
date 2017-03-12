@@ -151,6 +151,9 @@ var newSessionHandlers = {
 };
 
 module.exports.index = (event, context, callback) => {
+    console.log("INTENT: " + event.request.intent.name);
+    console.log("SLOTS:");
+    console.log(event.request.intent.slots);
     var alexa = Alexa.handler(event, context);
     alexa.registerHandlers(newSessionHandlers);
     alexa.execute();
