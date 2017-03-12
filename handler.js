@@ -105,6 +105,38 @@ var newSessionHandlers = {
         });
     },
 
+    'getMoreInfoByNeighborIntent': function() {
+        var context = this,
+            slotValue = context.event.request.intent.slots.neighbor.value;
+        https.get(config.communityDataHost, config.communityDataPath, function(err, data) {
+            if (err) {
+                console.error(err);
+                context.emit(':tell', noNeighborErrorMessage, welcomeReprompt);
+                return;
+            }
+
+            data = JSON.parse(data);
+
+            data = data.filter(function(contact) {
+                if (contact.contact.toLowerCase().includes(slotValue.toLowerCase())) {
+                    return true;
+                } else {
+                    return false;
+                }
+            });
+
+            var neighborInfo = "";
+            data.forEach(function(contact) {
+                neighborInfo = contact.contact + ", " + neighborInfo;
+            });
+
+            neighborInfo = utils.contentCleanUp(neighborInfo);
+
+            output = "Here is some information about " + slotValue + " in Nashville, " + neighborInfo;
+            context.emit(':tell', output, getMoreInfoRepromptMessage);
+        });
+    },
+
     'Unhandled': function() {
         output = HelpMessage;
         this.emit(':ask', output, welcomeReprompt);
