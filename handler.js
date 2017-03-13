@@ -144,11 +144,11 @@ var newSessionHandlers = {
 
             data = JSON.parse(data);
 
-            if (!data || data.length === 0 || !data[0].hasOwnProperty('contact') || !data[0].hasOwnProperty('contact_type')) {
-                console.error("Error retrieving data");
-                context.emit(':tell', noNeighborErrorMessage, welcomeReprompt);
-                return;
-            }
+            // if (!data || data.length === 0 || !data[0].hasOwnProperty('contact') || !data[0].hasOwnProperty('contact_type')) {
+            //     console.error("Error retrieving data");
+            //     context.emit(':tell', noNeighborErrorMessage, welcomeReprompt);
+            //     return;
+            // }
 
             data = data.find(function(contact) {
                 if (contact.contact.toLowerCase().includes(slotValue.toLowerCase())) {
@@ -158,11 +158,11 @@ var newSessionHandlers = {
                 }
             });
 
-            if (!data || data.length === 0 || !data[0].hasOwnProperty('contact') || !data[0].hasOwnProperty('contact_type')) {
-                console.error("Error retrieving data");
-                context.emit(':tell', noNeighborErrorMessage, welcomeReprompt);
-                return;
-            }
+            // if (!data || data.length === 0 || !data[0].hasOwnProperty('contact') || !data[0].hasOwnProperty('contact_type')) {
+            //     console.error("Error retrieving data");
+            //     context.emit(':tell', noNeighborErrorMessage, welcomeReprompt);
+            //     return;
+            // }
 
             var neighborInfo = data.contact + " is a " + data.contact_type + " service,";
 
