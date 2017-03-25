@@ -9,7 +9,9 @@
     "fuzzyset.js": "0.0.1",
     "https": "^1.0.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "eslint": "^3.18.0"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

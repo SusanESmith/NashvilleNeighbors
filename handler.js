@@ -4,45 +4,38 @@ const config = require('./lib/config.js');
 const Alexa = require('alexa-sdk');
 const https = require('./lib/https.js');
 const utils = require('./lib/utils.js');
-//const fuzzySet = require('fuzzyset.js');
 
-var welcomeMessage = "We are your Nashville Neighbors. You can ask us for public community resource information, or say help. What will it be?";
+var welcomeMessage = "We are your Neighbors of Nashville. You can ask us for public community resource information, or say help. What will it be?";
 
 var welcomeReprompt = "You can ask me for a community resource category, for information on a specific neighbor, or say help. What will it be?";
 
-var HelpMessage = "Here are some things you can say: Give me community resource information. Tell me about Nashville Neighbors.  What would you like to do?";
+var HelpMessage = "Here are some things you can say: Give me community resource information. Tell me about Neighbors of Nashville.  What would you like to do?";
 
-var goodbyeMessage = "OK, thanks for being a Nashville Neighbor.";
+var goodbyeMessage = "OK, thanks for being a Neighbors of Nashville.";
 
 var tryAgainMessage = "please try again."
 
 var noCategoryErrorMessage = "There was an error finding this category, " + tryAgainMessage;
 
-var moreCategoryInfo = "You can tell me a category for more information. For example tell me more about Food Assistance.";
-
 var getMoreInfoRepromptMessage = "What category would you like to hear about?";
 
 var noNeighborErrorMessage = "There was an error finding this neighbor, " + tryAgainMessage;
 
-var moreInformation = "See your Alexa app for more information."
-
-var getMoreInfoMessage = "OK, " + getMoreInfoRepromptMessage;
-
 var output = "";
 
 var newSessionHandlers = {
-    'LaunchRequest': function() {
+    'LaunchRequest': function () {
         output = welcomeMessage;
         this.emit(':ask', output, welcomeReprompt);
     },
-    'getOverview': function() {
+    'getOverview': function () {
         output = welcomeMessage;
         this.emit(':ask', output, welcomeReprompt);
     },
 
-    'getCompleteCategoryListIntent': function() {
+    'getCompleteCategoryListIntent': function () {
         var context = this;
-        https.get(config.communityDataHost, config.communityDataPath, function(err, data) {
+        https.get(config.communityDataHost, config.communityDataPath, function (err, data) {
             if (err) {
                 console.error(err);
                 context.emit(':tell', noCategoryErrorMessage, welcomeReprompt);
@@ -57,7 +50,7 @@ var newSessionHandlers = {
 
             var excludedCategories = JSON.parse(utils.contentCleanUp(JSON.stringify(config.excludedCategories)));
 
-            var finalArr = data.filter(function(element) {
+            var finalArr = data.filter(function (element) {
                 if (excludeArr.indexOf(element.contact_type) !== -1 || excludedCategories.indexOf(element.contact_type.toLowerCase()) !== -1) {
                     return false;
                 } else {
@@ -67,7 +60,7 @@ var newSessionHandlers = {
             });
 
             var categories = "";
-            finalArr.forEach(function(contact) {
+            finalArr.forEach(function (contact) {
                 categories = contact.contact_type + ", " + categories;
             });
 
@@ -78,10 +71,18 @@ var newSessionHandlers = {
         });
     },
 
-    'getMoreInfoByCategoryIntent': function() {
-        var context = this,
-            slotValue = context.event.request.intent.slots.category.value;
-        https.get(config.communityDataHost, config.communityDataPath, function(err, data) {
+    'getMoreInfoByCategoryIntent': function () {
+        var context = this;
+
+        if (context.event.request.hasOwnProperty('intent') && context.event.request.intent.hasOwnProperty('slots') && context.event.request.intent.slots.hasOwnProperty('category') && context.event.request.intent.slots.neighbor.hasOwnProperty('value')) {
+            var slotValue = context.event.request.intent.slots.category.value;
+        } else {
+            console.error("No value in category slot");
+            context.emit(':tell', noCategoryErrorMessage, welcomeReprompt);
+            return;
+        }
+
+        https.get(config.communityDataHost, config.communityDataPath, function (err, data) {
             if (err) {
                 console.error(err);
                 context.emit(':tell', noCategoryErrorMessage, welcomeReprompt);
@@ -92,34 +93,28 @@ var newSessionHandlers = {
 
             data = JSON.parse(data);
 
-            if (!data || data.length === 0 || !data[0].hasOwnProperty('contact') || !data[0].hasOwnProperty('contact_type')) {
+            if (!data || data.length === 0) {
                 console.error("Error retrieving data");
                 context.emit(':tell', noCategoryErrorMessage, welcomeReprompt);
                 return;
             }
 
-            // var dataSet = fuzzySet();
-            //
-            // data.forEach(function(contact) {
-            //   dataSet.add(contact.contact_type.toLowerCase());
-            // });
-
-            data = data.filter(function(contact) {
-                if (contact.contact_type.toLowerCase().includes(slotValue.toLowerCase())) {
+            data = data.filter(function (contact) {
+                if (contact.hasOwnProperty('contact_type') && data[0].hasOwnProperty('contact') && contact.contact_type.toLowerCase().includes(slotValue.toLowerCase())) {
                     return true;
                 } else {
                     return false;
                 }
             });
 
-            if (!data || data.length === 0 || !data[0].hasOwnProperty('contact') || !data[0].hasOwnProperty('contact_type')) {
+            if (!data || data.length === 0) {
                 console.error("Error retrieving data");
                 context.emit(':tell', noCategoryErrorMessage, welcomeReprompt);
                 return;
             }
 
             var contacts = "";
-            data.forEach(function(contact) {
+            data.forEach(function (contact) {
                 contacts = contact.contact + ", " + contacts;
             });
 
@@ -130,10 +125,18 @@ var newSessionHandlers = {
         });
     },
 
-    'getMoreInfoByNeighborIntent': function() {
-        var context = this,
-            slotValue = context.event.request.intent.slots.neighbor.value;
-        https.get(config.communityDataHost, config.communityDataPath, function(err, data) {
+    'getMoreInfoByNeighborIntent': function () {
+        var context = this
+        
+        if (context.event.request.hasOwnProperty('intent') && context.event.request.intent.hasOwnProperty('slots') && context.event.request.intent.slots.hasOwnProperty('neighbor') && context.event.request.intent.slots.neighbor.hasOwnProperty('value')) {
+            var slotValue = context.event.request.intent.slots.neighbor.value;
+        } else {
+            console.error("No value in neighbor slot");
+            context.emit(':tell', noNeighborErrorMessage, welcomeReprompt);
+            return;
+        }
+
+        https.get(config.communityDataHost, config.communityDataPath, function (err, data) {
             if (err) {
                 console.error(err);
                 context.emit(':tell', noNeighborErrorMessage, welcomeReprompt);
@@ -144,25 +147,25 @@ var newSessionHandlers = {
 
             data = JSON.parse(data);
 
-            // if (!data || data.length === 0 || !data[0].hasOwnProperty('contact') || !data[0].hasOwnProperty('contact_type')) {
-            //     console.error("Error retrieving data");
-            //     context.emit(':tell', noNeighborErrorMessage, welcomeReprompt);
-            //     return;
-            // }
+            if (!data || data.length === 0) {
+                console.error("Error retrieving data");
+                context.emit(':tell', noNeighborErrorMessage, welcomeReprompt);
+                return;
+            }
 
-            data = data.find(function(contact) {
-                if (contact.contact.toLowerCase().includes(slotValue.toLowerCase())) {
+            data = data.find(function (contact) {
+                if (contact.hasOwnProperty('contact') && contact.contact.toLowerCase().includes(slotValue.toLowerCase())) {
                     return true;
                 } else {
                     return false;
                 }
             });
 
-            // if (!data || data.length === 0 || !data[0].hasOwnProperty('contact') || !data[0].hasOwnProperty('contact_type')) {
-            //     console.error("Error retrieving data");
-            //     context.emit(':tell', noNeighborErrorMessage, welcomeReprompt);
-            //     return;
-            // }
+            if (!data || !data[0].hasOwnProperty('contact_type')) {
+                console.error("Error retrieving data");
+                context.emit(':tell', noNeighborErrorMessage, welcomeReprompt);
+                return;
+            }
 
             var neighborInfo = data.contact + " is a " + data.contact_type + " service,";
 
@@ -181,20 +184,19 @@ var newSessionHandlers = {
         });
     },
 
-    'Unhandled': function() {
+    'Unhandled': function () {
         output = HelpMessage;
         this.emit(':ask', output, welcomeReprompt);
     },
-    'AMAZON.StopIntent': function() {
+    'AMAZON.StopIntent': function () {
         this.emit(':tell', goodbyeMessage);
     },
-    'SessionEndedRequest': function() {
-        // Use this function to clear up and save any data needed between sessions
+    'SessionEndedRequest': function () {
         this.emit('AMAZON.StopIntent');
     }
 };
 
-module.exports.index = (event, context, callback) => {
+module.exports.index = (event, context) => {
     if (event.request.hasOwnProperty('intent') && event.request.intent.hasOwnProperty('name')) {
         console.log("INTENT: " + event.request.intent.name);
     }
