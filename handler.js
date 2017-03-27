@@ -9,7 +9,7 @@ var welcomeMessage = "We are your Neighbors of Nashville. You can ask us for pub
 
 var welcomeReprompt = "You can ask me for a community resource category, for information on a specific neighbor, or say help. What will it be?";
 
-var HelpMessage = "Here are some things you can say: Give me community resource information. Tell me about Neighbors of Nashville.  What would you like to do?";
+var HelpMessage = "Here are some things you can say: Give me community resource information. Tell me about the category Food Assistance.  What would you like to do?";
 
 var goodbyeMessage = "OK, thanks for being a Neighbors of Nashville.";
 
@@ -74,7 +74,7 @@ var newSessionHandlers = {
     'getMoreInfoByCategoryIntent': function () {
         var context = this;
 
-        if (context.event.request.hasOwnProperty('intent') && context.event.request.intent.hasOwnProperty('slots') && context.event.request.intent.slots.hasOwnProperty('category') && context.event.request.intent.slots.neighbor.hasOwnProperty('value')) {
+        if (context.event.request.hasOwnProperty('intent') && context.event.request.intent.hasOwnProperty('slots') && context.event.request.intent.slots.hasOwnProperty('category') && context.event.request.intent.slots.category.hasOwnProperty('value')) {
             var slotValue = context.event.request.intent.slots.category.value;
         } else {
             console.error("No value in category slot");
@@ -161,7 +161,7 @@ var newSessionHandlers = {
                 }
             });
 
-            if (!data || !data[0].hasOwnProperty('contact_type')) {
+            if (!data || !data.hasOwnProperty('contact_type')) {
                 console.error("Error retrieving data");
                 context.emit(':tell', noNeighborErrorMessage, welcomeReprompt);
                 return;
